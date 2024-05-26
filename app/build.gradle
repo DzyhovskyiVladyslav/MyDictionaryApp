@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -29,8 +30,12 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
+    implementation libs.core.ktx
+    implementation libs.lifecycle.livedata.ktx
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.room.runtime
+    ksp libs.room.compiler
     implementation libs.material
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
