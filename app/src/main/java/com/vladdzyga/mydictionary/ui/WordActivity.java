@@ -6,12 +6,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.vladdzyga.mydictionary.R;
 import com.vladdzyga.mydictionary.model.Word;
 import com.vladdzyga.mydictionary.viewmodel.WordViewModel;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,6 +26,7 @@ public class WordActivity extends AppCompatActivity {
 
     private WordViewModel wordViewModel;
     private ArrayAdapter<Word> adapter;
+    private List<Word> wordList = new ArrayList<>();
     private int topicId;
 
     @Override
@@ -33,8 +38,9 @@ public class WordActivity extends AppCompatActivity {
         final EditText editTranslation = findViewById(R.id.edit_translation);
         Button btnAddWord = findViewById(R.id.btn_add_word);
         ListView listWords = findViewById(R.id.list_words);
+        SearchView searchView = findViewById(R.id.search_view);
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, wordList);
         listWords.setAdapter(adapter);
 
         wordViewModel = new ViewModelProvider(this).get(WordViewModel.class);
@@ -43,6 +49,7 @@ public class WordActivity extends AppCompatActivity {
             public void onChanged(List<Word> words) {
                 adapter.clear();
                 adapter.addAll(words);
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -58,5 +65,31 @@ public class WordActivity extends AppCompatActivity {
                 wordViewModel.insert(word);
             }
         });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return false;
+            }
+        });
+    }
+
+    private void filter(String text) {
+        List<Word> filteredList = new ArrayList<>();
+        for (Word word : wordList) {
+            if (word.word.toLowerCase().contains(text.toLowerCase()) ||
+                    word.translation.toLowerCase().contains(text.toLowerCase())) {
+                filteredList.add(word);
+            }
+        }
+        adapter.clear();
+        adapter.addAll(filteredList);
+        adapter.notifyDataSetChanged();
     }
 }
